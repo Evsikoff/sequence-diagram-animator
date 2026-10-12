@@ -49,7 +49,7 @@ export function App() {
     const [connect, setConnect] = useState(false);
     const [fitRequest, setFitRequest] = useState(0);
     const [menu, setMenu] = useState<null | 'file' | 'export'>(null);
-    const [saved, setSaved] = useState<'saved' | 'saving'>('saved');
+    const [saved, setSaved] = useState<'saved' | 'saving' | 'example'>('saved');
     const fileInput = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -61,8 +61,13 @@ export function App() {
     const layout = useMemo(() => layoutDiagram(diagram, theme, measure), [diagram, theme, measure]);
     const animator = useMemo(() => (project.episodes.length ? new Animator(project, layout) : null), [project, layout]);
 
-    // Автосохранение в браузере.
+    // Автосохранение в браузере. Нетронутый пример не сохраняем — при следующем
+    // открытии он придёт с сервера свежим (с новыми записями и правками).
     useEffect(() => {
+        if (store().isPristineExample(project)) {
+            setSaved('example');
+            return;
+        }
         setSaved('saving');
         const timer = window.setTimeout(() => void saveCurrent(project).then(() => setSaved('saved')), 700);
         return () => window.clearTimeout(timer);
@@ -200,7 +205,7 @@ export function App() {
     const openExample = async () => {
         try {
             const response = await fetch('examples/partner-link/project.json');
-            store().load(normalizeProject(await response.json()), 'Открыт пример: связка профиля с партнёром');
+            store().load(normalizeProject(await response.json()), 'Открыт пример: связка профиля с партнёром', true);
             setFitRequest((n) => n + 1);
         } catch (error) {
             store().notify(`Пример не загрузился: ${(error as Error).message}`, 'error');
@@ -281,7 +286,7 @@ export function App() {
                     </button>
                 </div>
                 <div className="spacer" />
-                <span className="save-state muted small">{saved === 'saving' ? 'сохраняем…' : 'сохранено в браузере'}</span>
+                <span className="save-state muted small">{saved === 'saving' ? 'сохраняем…' : saved === 'example' ? 'пример: правки сохранятся в браузере' : 'сохранено в браузере'}</span>
                 <button className="primary" onClick={() => preview()} disabled={!animator}>
                     ▶ Смотреть
                 </button>

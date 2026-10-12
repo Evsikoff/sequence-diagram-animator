@@ -130,3 +130,34 @@ test('предпросмотр: плеер переключает эпизоды
     await page.getByRole('button', { name: 'Закрыть' }).click();
     await expect(player).toHaveCount(0);
 });
+
+test('пример: озвучка подключена и играет в предпросмотре', async ({ page }) => {
+    await open(page, '?example=demo');
+    const demo = await page.evaluate(() => (window as unknown as { SDA: { project(): { episodes: { audio: unknown }[] } } }).SDA.project());
+    expect(demo.episodes.every((e) => e.audio)).toBe(true);
+    await page.getByRole('button', { name: '▶ Смотреть' }).click();
+    await expect(page.locator('.preview-host .sda-status')).toContainText('говорит диктор', { timeout: 15_000 });
+});
+
+test('устаревшая копия примера в браузере заменяется свежим примером', async ({ page }) => {
+    await open(page);
+    // Кладём в автосохранение пример без записей — как у того, кто открыл редактор до их появления.
+    await page.evaluate(async () => {
+        const demo = await (await fetch('examples/partner-link/project.json')).json();
+        const stale = { ...demo, assets: {}, episodes: demo.episodes.map((e: object) => ({ ...e, audio: null })) };
+        await new Promise<void>((resolve, reject) => {
+            const request = indexedDB.open('sequence-diagram-animator', 1);
+            request.onupgradeneeded = () => request.result.createObjectStore('projects');
+            request.onsuccess = () => {
+                const tx = request.result.transaction('projects', 'readwrite');
+                tx.objectStore('projects').put(stale, 'current');
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            };
+        });
+    });
+    await open(page, './');
+    const project = await page.evaluate(() => (window as unknown as { SDA: { project(): { episodes: { audio: unknown }[] } } }).SDA.project());
+    expect(project.episodes.every((e) => e.audio)).toBe(true);
+    await expect(page.locator('.save-state')).toContainText('пример');
+});

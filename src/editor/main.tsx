@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { layoutDiagram } from '../core/layout';
 import { canvasMeasure, loadFonts } from '../core/measure';
+import { isStaleDemo } from '../core/demo';
 import { newProject, normalizeProject, Project } from '../core/project';
 import { loadDiagram } from '../core/source';
 import { autoSplit } from '../core/split';
@@ -25,10 +26,25 @@ async function example(): Promise<Project | null> {
 async function boot() {
     const params = new URLSearchParams(location.search);
     let project: Project | null = null;
-    if (params.has('example')) project = await example();
-    else if (!params.has('fresh')) project = await loadCurrent();
-    if (!project) project = params.has('fresh') ? newProject(STARTER, 'Вход в приложение') : (await example()) ?? newProject(STARTER, 'Вход в приложение');
-    createStore(project);
+    let fromExample = false;
+    if (params.has('example')) {
+        project = await example();
+        fromExample = project !== null;
+    } else if (!params.has('fresh')) {
+        project = await loadCurrent();
+        // Устаревшая копия примера (без новых записей и т. п.) — заменяем свежим.
+        const demo = project ? await example() : null;
+        if (project && demo && isStaleDemo(project, demo)) {
+            project = demo;
+            fromExample = true;
+        }
+    }
+    if (!project && !params.has('fresh')) {
+        project = await example();
+        fromExample = project !== null;
+    }
+    project ??= newProject(STARTER, 'Вход в приложение');
+    createStore(project, fromExample);
     createRoot(document.getElementById('root')!).render(<App />);
 }
 
