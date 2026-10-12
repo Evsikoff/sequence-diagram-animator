@@ -1,5 +1,5 @@
 // Экспорт проекта в web-приложение из командной строки.
-//   npx tsx scripts/export-webapp.ts public/examples/fsp-link/project.json out/fsp
+//   npx tsx scripts/export-webapp.ts public/examples/partner-link/project.json out/demo
 // Относительные пути записей в проекте считаются от папки public/ (как в редакторе).
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';

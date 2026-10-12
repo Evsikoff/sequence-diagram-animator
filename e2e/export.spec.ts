@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 type Files = { path: string; base64: string }[];
 
 test('web-приложение: экспорт открывается с file:// и переключает эпизоды', async ({ page, browser }) => {
-    await page.goto('?example=fsp');
+    await page.goto('?example=demo');
     await page.waitForSelector('.canvas-svg [data-id]', { state: 'attached' });
     const files = await page.evaluate(() => (window as unknown as { SDA: { exportWebApp(): Promise<Files> } }).SDA.exportWebApp());
     const dir = mkdtempSync(join(tmpdir(), 'sda-webapp-'));
@@ -14,7 +14,7 @@ test('web-приложение: экспорт открывается с file://
         mkdirSync(dirname(join(dir, file.path)), { recursive: true });
         writeFileSync(join(dir, file.path), Buffer.from(file.base64, 'base64'));
     }
-    expect(files.map((f) => f.path)).toEqual(expect.arrayContaining(['index.html', 'audio/01-vhod-fsp-id.mp3', '.github/workflows/pages.yml']));
+    expect(files.map((f) => f.path)).toEqual(expect.arrayContaining(['index.html', 'project.json', 'player.js', '.github/workflows/pages.yml']));
 
     const app = await browser.newPage();
     const errors: string[] = [];
@@ -38,7 +38,7 @@ test('web-приложение: экспорт открывается с file://
 });
 
 test('видео: экспорт эпизода из диалога', async ({ page }) => {
-    await page.goto('?example=fsp');
+    await page.goto('?example=demo');
     await page.waitForSelector('.canvas-svg [data-id]', { state: 'attached' });
     await page.getByRole('button', { name: 'Экспорт ▾' }).click();
     await page.getByRole('button', { name: 'Видео (MP4 / WebM)…' }).click();
@@ -50,5 +50,5 @@ test('видео: экспорт эпизода из диалога', async ({ p
     const file = await download;
     expect(file.suggestedFilename()).toMatch(/episode-1\.(mp4|webm)$/);
     await expect(dialog.locator('.result video')).toHaveCount(1);
-    await expect(dialog.locator('.result')).toContainText('0:26');
+    await expect(dialog.locator('.result')).toContainText(/\d:\d\d, [\d.]+ МБ/);
 });

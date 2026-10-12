@@ -17,7 +17,7 @@ beforeAll(async () => {
 
 const samples: Record<string, string> = {
     starter: STARTER_CODE,
-    fsp: JSON.parse(readFileSync('public/examples/fsp-link/project.json', 'utf8')).diagram.code,
+    demo: JSON.parse(readFileSync('public/examples/partner-link/project.json', 'utf8')).diagram.code,
     everything: `sequenceDiagram
     title Все конструкции
     autonumber
