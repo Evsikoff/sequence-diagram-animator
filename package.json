@@ -1,0 +1,46 @@
+{
+  "name": "sequence-diagram-animator",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Редактор UML-диаграмм последовательности (код Mermaid + визуально) с анимацией по репликам, экспортом в видео и в web-приложение",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:player && vite",
+    "build:player": "vite build --config vite.player.config.ts",
+    "build": "npm run build:player && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "render": "node scripts/render-video.mjs",
+    "render:svg": "tsx scripts/render-svg.ts",
+    "export:webapp": "tsx scripts/export-webapp.ts",
+    "example": "tsx scripts/build-example.ts"
+  },
+  "dependencies": {
+    "@codemirror/commands": "^6.8.0",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.38.0",
+    "@lezer/highlight": "^1.2.5",
+    "fflate": "^0.8.2",
+    "mediabunny": "^1.61.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@playwright/test": "1.56.1",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^26.1.0",
+    "mermaid": "^12.1.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
+  }
+}

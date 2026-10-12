@@ -1,0 +1,255 @@
+/* Плеер анимированной диаграммы. Цвета интерфейса — переменные, фон сцены
+   задаёт тема диаграммы (--sda-stage-bg). */
+.sda-player {
+    --sda-bg: #f6f8fa;
+    --sda-panel: #ffffff;
+    --sda-text: #1f2328;
+    --sda-muted: #57606a;
+    --sda-border: #d0d7de;
+    --sda-accent: #0b5cad;
+    --sda-accent-text: #ffffff;
+    --sda-stage-bg: #ffffff;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+    color: var(--sda-text);
+    font: 14px/1.45 'SDA Inter', Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+    outline: none;
+}
+.sda-player *,
+.sda-player *::before,
+.sda-player *::after {
+    box-sizing: border-box;
+}
+.sda-player.sda-dark {
+    --sda-bg: #0b0f14;
+    --sda-panel: #151b22;
+    --sda-text: #e6edf3;
+    --sda-muted: #9ba7b4;
+    --sda-border: #2d3640;
+    --sda-accent: #58a6ff;
+    --sda-accent-text: #0b0f14;
+}
+.sda-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    background: var(--sda-panel);
+    border: 1px solid var(--sda-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.sda-stage {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 220px;
+    background: var(--sda-stage-bg);
+    cursor: pointer;
+}
+.sda-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.sda-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 26px 14px 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--sda-accent);
+    color: var(--sda-accent-text);
+    font: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+}
+.sda-overlay[hidden] {
+    display: none;
+}
+.sda-overlay svg {
+    width: 26px;
+    height: 26px;
+}
+.sda-progress {
+    position: relative;
+    flex: none;
+    height: 6px;
+    background: var(--sda-border);
+    cursor: pointer;
+}
+.sda-progress-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: var(--sda-accent);
+}
+.sda-tick {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    margin-left: -1px;
+    background: var(--sda-panel);
+}
+.sda-caption {
+    flex: none;
+    min-height: 4.6em;
+    max-height: 8.5em;
+    overflow: auto;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--sda-border);
+    font-size: 15px;
+}
+.sda-controls {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+}
+.sda-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--sda-border);
+    border-radius: 8px;
+    background: var(--sda-panel);
+    color: var(--sda-text);
+    font: inherit;
+    cursor: pointer;
+}
+.sda-button:hover:not(:disabled) {
+    border-color: var(--sda-accent);
+}
+.sda-button:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+.sda-button svg {
+    width: 18px;
+    height: 18px;
+}
+.sda-play {
+    width: 46px;
+    justify-content: center;
+    background: var(--sda-accent);
+    border-color: var(--sda-accent);
+    color: var(--sda-accent-text);
+}
+.sda-icon {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+}
+.sda-status {
+    flex: 1 1 160px;
+    min-width: 0;
+    color: var(--sda-muted);
+    font-size: 13px;
+}
+.sda-select {
+    display: none;
+    height: 34px;
+    max-width: 220px;
+    border: 1px solid var(--sda-border);
+    border-radius: 8px;
+    background: var(--sda-panel);
+    color: var(--sda-text);
+    font: inherit;
+}
+.sda-aside {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: var(--sda-panel);
+    border: 1px solid var(--sda-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.sda-aside-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--sda-border);
+    font-weight: 600;
+}
+.sda-aside-title svg {
+    width: 18px;
+    height: 18px;
+}
+.sda-chapters {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    overflow: auto;
+}
+.sda-chapter button {
+    display: grid;
+    grid-template-columns: 26px 1fr auto;
+    align-items: start;
+    gap: 6px;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.sda-chapter button:hover {
+    background: var(--sda-bg);
+}
+.sda-chapter.sda-current button {
+    background: var(--sda-accent);
+    color: var(--sda-accent-text);
+}
+.sda-chapter-number {
+    font-weight: 600;
+    opacity: 0.8;
+}
+.sda-chapter-time {
+    font-size: 12px;
+    opacity: 0.7;
+}
+@media (max-width: 860px) {
+    .sda-player {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .sda-aside {
+        display: none;
+    }
+    .sda-select {
+        display: block;
+    }
+    .sda-stage {
+        flex: none;
+        min-height: 0;
+        aspect-ratio: 4 / 3;
+    }
+    .sda-button span {
+        display: none;
+    }
+}
+.sda-player:fullscreen {
+    padding: 12px;
+    background: var(--sda-bg);
+}

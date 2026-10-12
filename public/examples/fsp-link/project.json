@@ -1,0 +1,622 @@
+{
+  "format": "sequence-diagram-animator",
+  "version": 1,
+  "title": "Связка профиля ITinder с ФСП",
+  "description": "Демонстрация: выдуманная интеграция ITinder с ФСП через Keycloak (сценарий из репозитория Evsikoff/itinder).",
+  "diagram": {
+    "code": "sequenceDiagram\n    participant user as Кандидат<br/>браузер\n    participant itinder as ITinder<br/>сервер\n    participant keycloak as ФСП ID<br/>Keycloak\n    participant registry as Реестр ФСП<br/>API результатов\n    %% == 1. Вход через ФСП ID ==\n    user->>itinder: Связать профиль<br/>{fsp_id}\n    itinder-->>user: 302 → вход в ФСП ID<br/>client_id=itinder, PKCE\n    user->>keycloak: Логин, пароль ФСП, код 2FA\n    %% == 2. Согласие и токены ==\n    keycloak-->>user: Согласие: доступ к результатам<br/>scope=fsp.results\n    user->>keycloak: Разрешить\n    keycloak-->>user: 302 → ITinder /callback<br/>code=…\n    user->>itinder: /callback?code=…\n    itinder->>keycloak: POST /token<br/>code + code_verifier\n    keycloak-->>itinder: id_token, access, refresh<br/>sub = {fsp_id}\n    %% == 3. Забираем достижения ==\n    itinder->>registry: GET /participants/{fsp_id}/results<br/>Bearer access_token\n    registry-->>itinder: Соревнования, роль, итог, стек\n    itinder->>itinder: Роль → специализация<br/>стек → компетенции, итог → степень\n    itinder-->>user: Найдено: дополнить профиль?\n    user->>itinder: Да, дополнить\n    %% == 4. ФСП сам сообщает о новых итогах ==\n    Note over registry: Жюри утвердило итоги\n    registry-)itinder: Webhook results.published<br/>competition_id, подпись HMAC\n    itinder-->>registry: 202 Accepted\n    itinder->>keycloak: POST /token<br/>client_credentials\n    keycloak-->>itinder: Токен сервиса ITinder\n    itinder->>registry: GET /competitions/{id}/results<br/>только связанные профили\n    registry-->>itinder: Участия и итоги\n    %% == 5. Если вебхук потерялся ==\n    Note over itinder: Раз в сутки\n    itinder->>registry: GET /results<br/>updated_since=прошлая сверка\n    registry-->>itinder: Изменения за сутки\n    itinder->>itinder: Новые компетенции<br/>и рост степени старых\n    itinder-)user: «!» у значка ФСП\n    user->>itinder: Добавить в профиль\n    %% == 6. Согласие можно отозвать ==\n    user->>keycloak: Отозвать доступ ITinder\n    keycloak-)itinder: Отзыв согласия<br/>back-channel logout\n    itinder->>itinder: Удалить токены<br/>реестр больше не запрашивать\n",
+    "ids": [
+      "p1",
+      "p2",
+      "p3",
+      "p4",
+      "d1",
+      "m1",
+      "m2",
+      "m3",
+      "d2",
+      "m4",
+      "m5",
+      "m6",
+      "m7",
+      "m8",
+      "m9",
+      "d3",
+      "m10",
+      "m11",
+      "m12",
+      "m13",
+      "m14",
+      "d4",
+      "n1",
+      "m15",
+      "m16",
+      "m17",
+      "m18",
+      "m19",
+      "m20",
+      "d5",
+      "n2",
+      "m21",
+      "m22",
+      "m23",
+      "m24",
+      "m25",
+      "d6",
+      "m26",
+      "m27",
+      "m28"
+    ]
+  },
+  "episodes": [
+    {
+      "id": "emv4l6nxe5zr",
+      "title": "Вход через ФСП ID",
+      "start": "continue",
+      "audio": {
+        "asset": "01-vhod-fsp-id.mp3",
+        "duration": 25.234
+      },
+      "replicas": [
+        {
+          "id": "rmv4l6nxe1zt",
+          "text": "Кандидат вводит свой ФСП ID и нажимает «Связать».",
+          "set": {
+            "m1": "visible",
+            "d1": "visible",
+            "p1": "visible",
+            "p2": "visible",
+            "p3": "visible",
+            "p4": "visible"
+          },
+          "highlight": [
+            "p1"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": 0,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nxe254",
+          "text": "Дальше ITinder ничего не спрашивает сам: он отправляет браузер на страницу входа ФСП ID — это Keycloak Федерации.",
+          "set": {
+            "m2": "visible"
+          },
+          "highlight": [
+            "p3"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nxe3mh",
+          "text": "Логин и пароль от ФСП кандидат вводит только там, ITinder их никогда не видит.",
+          "set": {},
+          "highlight": [
+            "p1"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nxe4ic",
+          "text": "Это обычный вход по OpenID Connect: код авторизации с защитой PKCE.",
+          "set": {
+            "m3": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        }
+      ]
+    },
+    {
+      "id": "emv4l6nz4djt",
+      "title": "Согласие и токены",
+      "start": "dim",
+      "audio": {
+        "asset": "02-soglasie-tokeny.mp3",
+        "duration": 27.794
+      },
+      "replicas": [
+        {
+          "id": "rmv4l6nz375b",
+          "text": "Keycloak показывает экран согласия: ITinder просит читать результаты соревнований — и ничего больше.",
+          "set": {
+            "m4": "visible",
+            "m5": "visible",
+            "d2": "visible"
+          },
+          "highlight": [
+            "p3"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": 0,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nz38z9",
+          "text": "Это согласие на обработку данных по 152-ФЗ.",
+          "set": {
+            "m6": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nz39mb",
+          "text": "Кандидат соглашается, и Keycloak возвращает браузер в ITinder с одноразовым кодом.",
+          "set": {
+            "m7": "visible"
+          },
+          "highlight": [
+            "p3",
+            "p1"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nz3ai0",
+          "text": "Сервер ITinder меняет код на токены.",
+          "set": {
+            "m8": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nz3bd7",
+          "text": "В id_token есть главное — sub, идентификатор участника ФСП.",
+          "set": {
+            "m9": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6nz3cg9",
+          "text": "С этого момента профили связаны.",
+          "set": {},
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        }
+      ]
+    },
+    {
+      "id": "emv4l6o0qkgt",
+      "title": "Забираем достижения",
+      "start": "dim",
+      "audio": {
+        "asset": "03-dostizheniya.mp3",
+        "duration": 30.589
+      },
+      "replicas": [
+        {
+          "id": "rmv4l6o0qfl1",
+          "text": "С токеном доступа ITinder идёт в реестр ФСП и забирает историю участника: соревнования, роль в команде, итог и стек кейса.",
+          "set": {
+            "m10": "visible",
+            "m11": "visible",
+            "d3": "visible"
+          },
+          "highlight": [
+            "p4"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": 0,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o0qgu2",
+          "text": "Дальше работает сопоставление.",
+          "set": {},
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o0qhix",
+          "text": "Роль в команде становится специализацией, стек кейса — компетенциями, а итог и уровень соревнования — степенью их подтверждения.",
+          "set": {
+            "m12": "visible",
+            "m13": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o0qic",
+          "text": "Кандидат видит найденное и сам решает, добавлять ли это в профиль.",
+          "set": {
+            "m14": "visible"
+          },
+          "highlight": [
+            "p1"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o0qj72",
+          "text": "Нет истории в ФСП — профиль просто остаётся без достижений.",
+          "set": {},
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        }
+      ]
+    },
+    {
+      "id": "emv4l6o2frt",
+      "title": "ФСП сам сообщает о новых итогах",
+      "start": "dim",
+      "audio": {
+        "asset": "04-webhook.mp3",
+        "duration": 28.447
+      },
+      "replicas": [
+        {
+          "id": "rmv4l6o2fmzs",
+          "text": "Самое интересное начинается потом.",
+          "set": {
+            "n1": "visible",
+            "d4": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": 0,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o2fni5",
+          "text": "Кандидат съездил на новый хакатон — и ему не нужно ничего обновлять руками.",
+          "set": {
+            "m15": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o2fog4",
+          "text": "Когда жюри утверждает итоги, реестр ФСП сам отправляет ITinder вебхук: итоги соревнования опубликованы.",
+          "set": {
+            "m16": "visible",
+            "m17": "visible"
+          },
+          "highlight": [
+            "p4"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o2fp1m",
+          "text": "ITinder сразу отвечает «принято» и проверяет подпись.",
+          "set": {
+            "m18": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o2fqge",
+          "text": "А уже в фоне получает в Keycloak сервисный токен и забирает итоги — только по участникам, которые связали профиль с ITinder.",
+          "set": {
+            "m19": "visible",
+            "m20": "visible"
+          },
+          "highlight": [
+            "p3"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        }
+      ]
+    },
+    {
+      "id": "emv4l6o43xgi",
+      "title": "Если вебхук потерялся",
+      "start": "dim",
+      "audio": {
+        "asset": "05-sverka.mp3",
+        "duration": 23.954
+      },
+      "replicas": [
+        {
+          "id": "rmv4l6o43twz",
+          "text": "Сеть ненадёжна, и вебхук может не дойти.",
+          "set": {
+            "n2": "visible",
+            "d5": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": 0,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o43urc",
+          "text": "Поэтому раз в сутки ITinder сверяется с реестром сам и просит всё, что изменилось с прошлой сверки.",
+          "set": {
+            "m21": "visible",
+            "m22": "visible"
+          },
+          "highlight": [
+            "p4"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o43vfy",
+          "text": "Новые участия превращаются в новые компетенции или поднимают степень старых.",
+          "set": {
+            "m23": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o43wsf",
+          "text": "У значка ФСП на рабочем столе загорается восклицательный знак — а решение, обновлять ли профиль, снова за кандидатом.",
+          "set": {
+            "m24": "visible",
+            "m25": "visible"
+          },
+          "highlight": [],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        }
+      ]
+    },
+    {
+      "id": "emv4l6o5p138m",
+      "title": "Согласие можно отозвать",
+      "start": "dim",
+      "audio": {
+        "asset": "06-otzyv.mp3",
+        "duration": 24.346
+      },
+      "replicas": [
+        {
+          "id": "rmv4l6o5pz4q",
+          "text": "И последнее: данные принадлежат кандидату.",
+          "set": {
+            "m26": "visible",
+            "d6": "visible"
+          },
+          "highlight": [
+            "p1"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": 0,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o5p10ws",
+          "text": "Отозвать доступ можно прямо в ФСП ID — Keycloak сообщит об этом ITinder, и тот перестанет запрашивать реестр.",
+          "set": {
+            "m27": "visible"
+          },
+          "highlight": [
+            "p3",
+            "p4"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o5p11b",
+          "text": "В нашем прототипе настоящего ФСП ID пока нет: мы проверяем только формат идентификатора, а реестр имитируем.",
+          "set": {},
+          "highlight": [
+            "p4"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        },
+        {
+          "id": "rmv4l6o5p12y2",
+          "text": "Но цепочка уже готова к настоящему Keycloak Федерации.",
+          "set": {
+            "m28": "visible"
+          },
+          "highlight": [
+            "p3"
+          ],
+          "camera": {
+            "mode": "auto"
+          },
+          "audio": null,
+          "cue": null,
+          "duration": null,
+          "reveal": "stagger"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "theme": "itinder",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "subtitles": true,
+    "stickyHeader": true,
+    "autoAdvance": true,
+    "readingSpeed": 14,
+    "minReplica": 3,
+    "drawTime": 0.7,
+    "cameraTime": 0.9,
+    "episodeTail": 0.8
+  },
+  "assets": {
+    "01-vhod-fsp-id.mp3": {
+      "name": "01-vhod-fsp-id.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/fsp-link/01-vhod-fsp-id.mp3"
+    },
+    "02-soglasie-tokeny.mp3": {
+      "name": "02-soglasie-tokeny.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/fsp-link/02-soglasie-tokeny.mp3"
+    },
+    "03-dostizheniya.mp3": {
+      "name": "03-dostizheniya.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/fsp-link/03-dostizheniya.mp3"
+    },
+    "04-webhook.mp3": {
+      "name": "04-webhook.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/fsp-link/04-webhook.mp3"
+    },
+    "05-sverka.mp3": {
+      "name": "05-sverka.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/fsp-link/05-sverka.mp3"
+    },
+    "06-otzyv.mp3": {
+      "name": "06-otzyv.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/fsp-link/06-otzyv.mp3"
+    }
+  }
+}
