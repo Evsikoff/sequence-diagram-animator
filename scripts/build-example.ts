@@ -3,9 +3,10 @@
 // Запуск: npm run example
 //
 // Записи диктора — public/examples/partner-link/<имя из сценария>.mp3. Файл есть —
-// эпизод идёт под запись, нет — в темпе чтения текста.
-import { execFileSync } from 'node:child_process';
+// эпизод идёт под запись, нет — в темпе чтения текста. Сборка (npm run build)
+// запускает этот скрипт сама, так что достаточно положить файлы и задеплоить.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { ALL_FORMATS, BufferSource, Input } from 'mediabunny';
 import { elementsOf } from '../src/core/diagram';
 import { importItinder, ItinderStory } from '../src/core/itinder';
 import { loadDiagram } from '../src/core/source';
@@ -13,9 +14,15 @@ import { loadDiagram } from '../src/core/source';
 const story = JSON.parse(readFileSync('examples/partner-link-scenes.json', 'utf8')) as ItinderStory;
 const dir = 'public/examples/partner-link';
 
-function duration(file: string): number {
-    const out = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', file], { encoding: 'utf8' });
-    return Math.round(Number(out.trim()) * 1000) / 1000;
+async function duration(file: string): Promise<number> {
+    const input = new Input({ source: new BufferSource(readFileSync(file)), formats: ALL_FORMATS });
+    return Math.round((await input.computeDuration()) * 1000) / 1000;
+}
+
+const durations = new Map<string, number>();
+for (const scene of story.scenes) {
+    const name = scene.audio?.name;
+    if (name && existsSync(`${dir}/${name}`)) durations.set(name, await duration(`${dir}/${name}`));
 }
 
 const missing: string[] = [];
@@ -24,13 +31,14 @@ const project = importItinder(story, {
     audio: (scene) => {
         if (!scene.audio) return null;
         const name = scene.audio.name;
-        if (!existsSync(`${dir}/${name}`)) {
+        const length = durations.get(name);
+        if (!length) {
             missing.push(name);
             return null;
         }
         return {
             asset: name,
-            duration: duration(`${dir}/${name}`),
+            duration: length,
             data: { name, type: 'audio/mpeg', url: `examples/partner-link/${name}` },
         };
     },
@@ -51,6 +59,12 @@ for (const episode of project.episodes) {
     }
 }
 
+// Постоянные id эпизодов и реплик: пересборка без изменений не меняет файл.
+project.episodes.forEach((episode, e) => {
+    episode.id = `ep${e + 1}`;
+    episode.replicas.forEach((replica, r) => (replica.id = `ep${e + 1}-r${r + 1}`));
+});
+
 writeFileSync(`${dir}/project.json`, JSON.stringify(project, null, 2) + '\n');
-console.log(`episodes: ${project.episodes.length}, replicas: ${project.episodes.reduce((n, e) => n + e.replicas.length, 0)}`);
+console.log(`Пример: эпизодов ${project.episodes.length}, с записью ${durations.size}, реплик ${project.episodes.reduce((n, e) => n + e.replicas.length, 0)}`);
 if (missing.length) console.log(`Без записи (темп чтения): ${missing.join(', ')}`);

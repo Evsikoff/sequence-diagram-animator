@@ -40,9 +40,16 @@ class Store {
     private past: HistoryEntry[] = [];
     private future: HistoryEntry[] = [];
     private lastGroup: { group: string; at: number } | null = null;
+    // Пример, открытый и ещё не тронутый: его не автосохраняем.
+    private pristine: Project | null = null;
 
-    constructor(project: Project) {
+    constructor(project: Project, fromExample = false) {
         this.state = this.fresh(project);
+        this.pristine = fromExample ? this.state.project : null;
+    }
+
+    isPristineExample(project: Project): boolean {
+        return project === this.pristine;
     }
 
     private fresh(project: Project): EditorState {
@@ -99,12 +106,13 @@ class Store {
 
     // --- Проект целиком.
 
-    load(project: Project, notice?: string): void {
+    load(project: Project, notice?: string, fromExample = false): void {
         this.past = [];
         this.future = [];
         this.lastGroup = null;
         const fresh = this.fresh(project);
         this.state = { ...fresh, codeVersion: this.state.codeVersion + 1, mode: this.state.mode };
+        this.pristine = fromExample ? this.state.project : null;
         this.set({ notice: notice ? { text: notice, kind: 'info' } : null });
     }
 
@@ -245,8 +253,8 @@ class Store {
 
 let instance: Store | null = null;
 
-export function createStore(project: Project): Store {
-    instance = new Store(project);
+export function createStore(project: Project, fromExample = false): Store {
+    instance = new Store(project, fromExample);
     return instance;
 }
 

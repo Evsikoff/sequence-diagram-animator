@@ -50,13 +50,16 @@
   },
   "episodes": [
     {
-      "id": "emv4w4bi75ae",
+      "id": "ep1",
       "title": "Вход через ID партнёра",
       "start": "continue",
-      "audio": null,
+      "audio": {
+        "asset": "01-vhod.mp3",
+        "duration": 20.784
+      },
       "replicas": [
         {
-          "id": "rmv4w4bi71vi",
+          "id": "ep1-r1",
           "text": "Пользователь вводит свой идентификатор у партнёра и нажимает «Связать».",
           "set": {
             "m1": "visible",
@@ -73,12 +76,12 @@
             "mode": "auto"
           },
           "audio": null,
-          "cue": null,
+          "cue": 0,
           "duration": null,
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi72c3",
+          "id": "ep1-r2",
           "text": "Дальше портал ничего не спрашивает сам: он отправляет браузер на страницу входа партнёра — это его Keycloak.",
           "set": {
             "m2": "visible"
@@ -95,7 +98,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi73vq",
+          "id": "ep1-r3",
           "text": "Логин и пароль пользователь вводит только там, портал их никогда не видит.",
           "set": {},
           "highlight": [],
@@ -108,7 +111,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi74q9",
+          "id": "ep1-r4",
           "text": "Это обычный вход по OpenID Connect: код авторизации с защитой PKCE.",
           "set": {
             "m3": "visible"
@@ -125,13 +128,16 @@
       ]
     },
     {
-      "id": "emv4w4bi7dmt",
+      "id": "ep2",
       "title": "Согласие и токены",
       "start": "dim",
-      "audio": null,
+      "audio": {
+        "asset": "02-soglasie.mp3",
+        "duration": 24.528
+      },
       "replicas": [
         {
-          "id": "rmv4w4bi77p9",
+          "id": "ep2-r1",
           "text": "Keycloak партнёра показывает экран согласия: портал просит читать результаты — и ничего больше.",
           "set": {
             "m4": "visible",
@@ -145,12 +151,12 @@
             "mode": "auto"
           },
           "audio": null,
-          "cue": null,
+          "cue": 0,
           "duration": null,
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi782i",
+          "id": "ep2-r2",
           "text": "Это согласие на обработку персональных данных.",
           "set": {
             "m6": "visible"
@@ -165,7 +171,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi79dv",
+          "id": "ep2-r3",
           "text": "Пользователь соглашается, и Keycloak возвращает браузер на портал с одноразовым кодом.",
           "set": {
             "m7": "visible"
@@ -183,7 +189,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7av9",
+          "id": "ep2-r4",
           "text": "Сервер портала меняет код на токены.",
           "set": {
             "m8": "visible"
@@ -198,7 +204,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7bgg",
+          "id": "ep2-r5",
           "text": "В id_token есть главное — sub, идентификатор пользователя у партнёра.",
           "set": {
             "m9": "visible"
@@ -213,7 +219,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7cfa",
+          "id": "ep2-r6",
           "text": "С этого момента профили связаны.",
           "set": {},
           "highlight": [],
@@ -228,13 +234,16 @@
       ]
     },
     {
-      "id": "emv4w4bi7kuf",
+      "id": "ep3",
       "title": "Забираем достижения",
       "start": "dim",
-      "audio": null,
+      "audio": {
+        "asset": "03-dostizheniya.mp3",
+        "duration": 26.448
+      },
       "replicas": [
         {
-          "id": "rmv4w4bi7f55",
+          "id": "ep3-r1",
           "text": "С токеном доступа портал идёт в реестр партнёра и забирает историю пользователя: события, роль, итог и навыки.",
           "set": {
             "m10": "visible",
@@ -248,12 +257,12 @@
             "mode": "auto"
           },
           "audio": null,
-          "cue": null,
+          "cue": 0,
           "duration": null,
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7g4a",
+          "id": "ep3-r2",
           "text": "Дальше работает сопоставление.",
           "set": {},
           "highlight": [],
@@ -266,7 +275,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7hc1",
+          "id": "ep3-r3",
           "text": "Роль становится специализацией, навыки — компетенциями, а итог и уровень события — степенью их подтверждения.",
           "set": {
             "m12": "visible",
@@ -282,7 +291,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7ik4",
+          "id": "ep3-r4",
           "text": "Пользователь видит найденное и сам решает, добавлять ли это в профиль.",
           "set": {},
           "highlight": [
@@ -297,7 +306,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7j2u",
+          "id": "ep3-r5",
           "text": "Нет истории у партнёра — профиль просто остаётся без достижений.",
           "set": {
             "m14": "visible"
@@ -314,13 +323,16 @@
       ]
     },
     {
-      "id": "emv4w4bi7ric",
+      "id": "ep4",
       "title": "Партнёр сам сообщает о новых итогах",
       "start": "dim",
-      "audio": null,
+      "audio": {
+        "asset": "04-webhook.mp3",
+        "duration": 25.968
+      },
       "replicas": [
         {
-          "id": "rmv4w4bi7mxi",
+          "id": "ep4-r1",
           "text": "Самое интересное начинается потом.",
           "set": {
             "n1": "visible",
@@ -331,12 +343,12 @@
             "mode": "auto"
           },
           "audio": null,
-          "cue": null,
+          "cue": 0,
           "duration": null,
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7ntk",
+          "id": "ep4-r2",
           "text": "Пользователь поучаствовал в новом событии — и ему не нужно ничего обновлять руками.",
           "set": {
             "m15": "visible",
@@ -352,7 +364,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7ot5",
+          "id": "ep4-r3",
           "text": "Когда итоги утверждены, реестр партнёра сам отправляет порталу вебхук: итоги опубликованы.",
           "set": {
             "m17": "visible"
@@ -369,7 +381,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7pzl",
+          "id": "ep4-r4",
           "text": "Портал сразу отвечает «принято» и проверяет подпись.",
           "set": {
             "m18": "visible"
@@ -384,7 +396,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi7qgb",
+          "id": "ep4-r5",
           "text": "А уже в фоне получает в Keycloak сервисный токен и забирает итоги — только по пользователям, которые связали профиль.",
           "set": {
             "m19": "visible",
@@ -404,13 +416,16 @@
       ]
     },
     {
-      "id": "emv4w4bi8xpl",
+      "id": "ep5",
       "title": "Если вебхук потерялся",
       "start": "dim",
-      "audio": null,
+      "audio": {
+        "asset": "05-sverka.mp3",
+        "duration": 23.616
+      },
       "replicas": [
         {
-          "id": "rmv4w4bi8t5",
+          "id": "ep5-r1",
           "text": "Сеть ненадёжна, и вебхук может не дойти.",
           "set": {
             "n2": "visible",
@@ -421,12 +436,12 @@
             "mode": "auto"
           },
           "audio": null,
-          "cue": null,
+          "cue": 0,
           "duration": null,
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi8ugt",
+          "id": "ep5-r2",
           "text": "Поэтому раз в сутки портал сверяется с реестром сам и просит всё, что изменилось с прошлой сверки.",
           "set": {
             "m21": "visible",
@@ -444,7 +459,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi8vvn",
+          "id": "ep5-r3",
           "text": "Новые участия превращаются в новые компетенции или поднимают степень старых.",
           "set": {
             "m23": "visible"
@@ -459,7 +474,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi8w25",
+          "id": "ep5-r4",
           "text": "У значка партнёра в профиле загорается восклицательный знак — а решение, обновлять ли профиль, снова за пользователем.",
           "set": {
             "m24": "visible",
@@ -477,13 +492,16 @@
       ]
     },
     {
-      "id": "emv4w4bi812qn",
+      "id": "ep6",
       "title": "Согласие можно отозвать",
       "start": "dim",
-      "audio": null,
+      "audio": {
+        "asset": "06-otzyv.mp3",
+        "duration": 18.336
+      },
       "replicas": [
         {
-          "id": "rmv4w4bi8zvx",
+          "id": "ep6-r1",
           "text": "И последнее: данные принадлежат пользователю.",
           "set": {
             "m26": "visible",
@@ -494,12 +512,12 @@
             "mode": "auto"
           },
           "audio": null,
-          "cue": null,
+          "cue": 0,
           "duration": null,
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi810ph",
+          "id": "ep6-r2",
           "text": "Отозвать доступ можно прямо в кабинете партнёра — Keycloak сообщит об этом порталу, и тот перестанет запрашивать реестр.",
           "set": {
             "m27": "visible"
@@ -517,7 +535,7 @@
           "reveal": "stagger"
         },
         {
-          "id": "rmv4w4bi811vv",
+          "id": "ep6-r3",
           "text": "Вся цепочка — стандартный OpenID Connect, поэтому так же подключается любой партнёр со своим Keycloak.",
           "set": {
             "m28": "visible"
@@ -550,5 +568,36 @@
     "cameraTime": 0.9,
     "episodeTail": 0.8
   },
-  "assets": {}
+  "assets": {
+    "01-vhod.mp3": {
+      "name": "01-vhod.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/partner-link/01-vhod.mp3"
+    },
+    "02-soglasie.mp3": {
+      "name": "02-soglasie.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/partner-link/02-soglasie.mp3"
+    },
+    "03-dostizheniya.mp3": {
+      "name": "03-dostizheniya.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/partner-link/03-dostizheniya.mp3"
+    },
+    "04-webhook.mp3": {
+      "name": "04-webhook.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/partner-link/04-webhook.mp3"
+    },
+    "05-sverka.mp3": {
+      "name": "05-sverka.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/partner-link/05-sverka.mp3"
+    },
+    "06-otzyv.mp3": {
+      "name": "06-otzyv.mp3",
+      "type": "audio/mpeg",
+      "url": "examples/partner-link/06-otzyv.mp3"
+    }
+  }
 }

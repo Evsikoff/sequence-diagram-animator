@@ -5,9 +5,9 @@
   "description": "Редактор UML-диаграмм последовательности (код Mermaid + визуально) с анимацией по репликам, экспортом в видео и в web-приложение",
   "type": "module",
   "scripts": {
-    "dev": "npm run build:player && vite",
+    "dev": "npm run example && npm run build:player && vite",
     "build:player": "vite build --config vite.player.config.ts",
-    "build": "npm run build:player && tsc --noEmit && vite build",
+    "build": "npm run example && npm run build:player && tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
