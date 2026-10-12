@@ -119,8 +119,8 @@ describe('нарезка и импорт', () => {
         expect(sentences('Раз. Два! Три? Четыре…')).toEqual(['Раз.', 'Два!', 'Три?', 'Четыре…']);
     });
 
-    it('импорт сценария ITinder сохраняет все сообщения и сцены', () => {
-        const story = JSON.parse(readFileSync('examples/fsp-link-scenes.json', 'utf8')) as ItinderStory;
+    it('импорт сценария в формате scenes.json сохраняет все сообщения и сцены', () => {
+        const story = JSON.parse(readFileSync('examples/partner-link-scenes.json', 'utf8')) as ItinderStory;
         const project = importItinder(story, { audio: (scene) => ({ asset: scene.audio!.name, duration: 25 }) });
         const { diagram, errors } = loadDiagram(project.diagram);
         expect(errors).toEqual([]);

@@ -15,7 +15,7 @@ import './editor.css';
 
 async function example(): Promise<Project | null> {
     try {
-        const response = await fetch('examples/fsp-link/project.json');
+        const response = await fetch('examples/partner-link/project.json');
         return response.ok ? normalizeProject(await response.json()) : null;
     } catch {
         return null;
@@ -25,7 +25,7 @@ async function example(): Promise<Project | null> {
 async function boot() {
     const params = new URLSearchParams(location.search);
     let project: Project | null = null;
-    if (params.get('example') === 'fsp') project = await example();
+    if (params.has('example')) project = await example();
     else if (!params.has('fresh')) project = await loadCurrent();
     if (!project) project = params.has('fresh') ? newProject(STARTER, 'Вход в приложение') : (await example()) ?? newProject(STARTER, 'Вход в приложение');
     createStore(project);

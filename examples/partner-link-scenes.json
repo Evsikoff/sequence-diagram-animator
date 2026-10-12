@@ -1,0 +1,88 @@
+{
+  "participants": [
+    {"id": "user", "name": "Пользователь", "note": "браузер"},
+    {"id": "portal", "name": "Портал", "note": "сервер"},
+    {"id": "idp", "name": "ID партнёра", "note": "Keycloak"},
+    {"id": "registry", "name": "Реестр партнёра", "note": "API результатов"}
+  ],
+  "scenes": [
+    {
+      "number": 1,
+      "title": "Вход через ID партнёра",
+      "speaker_text": "Пользователь вводит свой идентификатор у партнёра и нажимает «Связать». Дальше портал ничего не спрашивает сам: он отправляет браузер на страницу входа партнёра — это его Keycloak. Логин и пароль пользователь вводит только там, портал их никогда не видит. Это обычный вход по OpenID Connect: код авторизации с защитой PKCE.",
+      "audio": {"name": "01-vhod.mp3", "url": "examples/partner-link/01-vhod.mp3"},
+      "messages": [
+        {"from": "user", "to": "portal", "kind": "call", "label": "Связать профиль", "detail": "{partner_id}"},
+        {"from": "portal", "to": "user", "kind": "reply", "label": "302 → вход партнёра", "detail": "client_id=portal, PKCE"},
+        {"from": "user", "to": "idp", "kind": "call", "label": "Логин, пароль, код 2FA"}
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Согласие и токены",
+      "speaker_text": "Keycloak партнёра показывает экран согласия: портал просит читать результаты — и ничего больше. Это согласие на обработку персональных данных. Пользователь соглашается, и Keycloak возвращает браузер на портал с одноразовым кодом. Сервер портала меняет код на токены. В id_token есть главное — sub, идентификатор пользователя у партнёра. С этого момента профили связаны.",
+      "audio": {"name": "02-soglasie.mp3", "url": "examples/partner-link/02-soglasie.mp3"},
+      "messages": [
+        {"from": "idp", "to": "user", "kind": "reply", "label": "Согласие: доступ к результатам", "detail": "scope=partner.results"},
+        {"from": "user", "to": "idp", "kind": "call", "label": "Разрешить"},
+        {"from": "idp", "to": "user", "kind": "reply", "label": "302 → портал /callback", "detail": "code=…"},
+        {"from": "user", "to": "portal", "kind": "call", "label": "/callback?code=…"},
+        {"from": "portal", "to": "idp", "kind": "call", "label": "POST /token", "detail": "code + code_verifier"},
+        {"from": "idp", "to": "portal", "kind": "reply", "label": "id_token, access, refresh", "detail": "sub = {partner_id}"}
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Забираем достижения",
+      "speaker_text": "С токеном доступа портал идёт в реестр партнёра и забирает историю пользователя: события, роль, итог и навыки. Дальше работает сопоставление. Роль становится специализацией, навыки — компетенциями, а итог и уровень события — степенью их подтверждения. Пользователь видит найденное и сам решает, добавлять ли это в профиль. Нет истории у партнёра — профиль просто остаётся без достижений.",
+      "audio": {"name": "03-dostizheniya.mp3", "url": "examples/partner-link/03-dostizheniya.mp3"},
+      "messages": [
+        {"from": "portal", "to": "registry", "kind": "call", "label": "GET /users/{partner_id}/results", "detail": "Bearer access_token"},
+        {"from": "registry", "to": "portal", "kind": "reply", "label": "События, роль, итог, навыки"},
+        {"from": "portal", "to": "portal", "kind": "call", "label": "Роль → специализация", "detail": "навыки → компетенции, итог → степень"},
+        {"from": "portal", "to": "user", "kind": "reply", "label": "Найдено: дополнить профиль?"},
+        {"from": "user", "to": "portal", "kind": "call", "label": "Да, дополнить"}
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Партнёр сам сообщает о новых итогах",
+      "speaker_text": "Самое интересное начинается потом. Пользователь поучаствовал в новом событии — и ему не нужно ничего обновлять руками. Когда итоги утверждены, реестр партнёра сам отправляет порталу вебхук: итоги опубликованы. Портал сразу отвечает «принято» и проверяет подпись. А уже в фоне получает в Keycloak сервисный токен и забирает итоги — только по пользователям, которые связали профиль.",
+      "audio": {"name": "04-webhook.mp3", "url": "examples/partner-link/04-webhook.mp3"},
+      "messages": [
+        {"note": "Итоги утверждены", "over": ["registry"]},
+        {"from": "registry", "to": "portal", "kind": "event", "label": "Webhook results.published", "detail": "event_id, подпись HMAC"},
+        {"from": "portal", "to": "registry", "kind": "reply", "label": "202 Accepted"},
+        {"from": "portal", "to": "idp", "kind": "call", "label": "POST /token", "detail": "client_credentials"},
+        {"from": "idp", "to": "portal", "kind": "reply", "label": "Токен сервиса"},
+        {"from": "portal", "to": "registry", "kind": "call", "label": "GET /events/{id}/results", "detail": "только связанные профили"},
+        {"from": "registry", "to": "portal", "kind": "reply", "label": "Участия и итоги"}
+      ]
+    },
+    {
+      "number": 5,
+      "title": "Если вебхук потерялся",
+      "speaker_text": "Сеть ненадёжна, и вебхук может не дойти. Поэтому раз в сутки портал сверяется с реестром сам и просит всё, что изменилось с прошлой сверки. Новые участия превращаются в новые компетенции или поднимают степень старых. У значка партнёра в профиле загорается восклицательный знак — а решение, обновлять ли профиль, снова за пользователем.",
+      "audio": {"name": "05-sverka.mp3", "url": "examples/partner-link/05-sverka.mp3"},
+      "messages": [
+        {"note": "Раз в сутки", "over": ["portal"]},
+        {"from": "portal", "to": "registry", "kind": "call", "label": "GET /results", "detail": "updated_since=прошлая сверка"},
+        {"from": "registry", "to": "portal", "kind": "reply", "label": "Изменения за сутки"},
+        {"from": "portal", "to": "portal", "kind": "call", "label": "Новые компетенции", "detail": "и рост степени старых"},
+        {"from": "portal", "to": "user", "kind": "event", "label": "«!» у значка партнёра"},
+        {"from": "user", "to": "portal", "kind": "call", "label": "Добавить в профиль"}
+      ]
+    },
+    {
+      "number": 6,
+      "title": "Согласие можно отозвать",
+      "speaker_text": "И последнее: данные принадлежат пользователю. Отозвать доступ можно прямо в кабинете партнёра — Keycloak сообщит об этом порталу, и тот перестанет запрашивать реестр. Вся цепочка — стандартный OpenID Connect, поэтому так же подключается любой партнёр со своим Keycloak.",
+      "audio": {"name": "06-otzyv.mp3", "url": "examples/partner-link/06-otzyv.mp3"},
+      "messages": [
+        {"from": "user", "to": "idp", "kind": "call", "label": "Отозвать доступ портала"},
+        {"from": "idp", "to": "portal", "kind": "event", "label": "Отзыв согласия", "detail": "back-channel logout"},
+        {"from": "portal", "to": "portal", "kind": "call", "label": "Удалить токены", "detail": "реестр больше не запрашивать"}
+      ]
+    }
+  ]
+}

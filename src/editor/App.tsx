@@ -199,8 +199,8 @@ export function App() {
     };
     const openExample = async () => {
         try {
-            const response = await fetch('examples/fsp-link/project.json');
-            store().load(normalizeProject(await response.json()), 'Открыт пример из ITinder');
+            const response = await fetch('examples/partner-link/project.json');
+            store().load(normalizeProject(await response.json()), 'Открыт пример: связка профиля с партнёром');
             setFitRequest((n) => n + 1);
         } catch (error) {
             store().notify(`Пример не загрузился: ${(error as Error).message}`, 'error');
@@ -249,7 +249,7 @@ export function App() {
                             <button onClick={() => newDiagram(STARTER)}>Новый проект (пример)</button>
                             <button onClick={() => newDiagram('sequenceDiagram\n')}>Новый пустой проект</button>
                             <button onClick={() => fileInput.current?.click()}>Открыть… (.json, .zip, .mmd)</button>
-                            <button onClick={openExample}>Пример: связка ITinder с ФСП</button>
+                            <button onClick={openExample}>Пример: связка профиля с партнёром</button>
                             <hr />
                             <button onClick={saveProject}>Сохранить проект (.sda.json) — Ctrl+S</button>
                             <button onClick={() => download(new Blob([project.diagram.code], { type: 'text/plain' }), `${fileSlug(project.title)}.mmd`)}>Скачать код Mermaid (.mmd)</button>

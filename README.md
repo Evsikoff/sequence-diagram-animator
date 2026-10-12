@@ -72,10 +72,14 @@ Papyrus сочетают оба способа, но это десктопные
 участниками закреплена. Щелчок по схеме и пробел ставят на паузу, ← → и кнопки
 «Назад» / «Вперёд» переключают сцены.
 
-Здесь то же самое сделано общим инструментом. Демо-проект
-`public/examples/fsp-link/project.json` собран из того же `scenes.json` и тех
-же записей (`npm run example`). Открыть его в редакторе: **Файл → Пример:
-связка ITinder с ФСП** или `?example=fsp` в адресе.
+Здесь то же самое сделано общим инструментом. Демо-проект повторяет сценарий
+референса, но с абстрактными участниками: Пользователь, Портал, ID партнёра
+(Keycloak) и Реестр партнёра. Сценарий лежит в `examples/partner-link-scenes.json`
+(тот же формат `scenes.json`), команда `npm run example` собирает из него
+`public/examples/partner-link/project.json`. Записи диктора кладутся рядом с
+проектом: `01-vhod.mp3` … `06-otzyv.mp3`. Пока их нет, эпизоды идут в темпе
+чтения текста. Открыть демо в редакторе: **Файл → Пример: связка профиля с
+партнёром** или `?example=demo` в адресе.
 
 | В референсе | Здесь |
 | --- | --- |
@@ -140,7 +144,7 @@ ZIP экспортированного web-приложения, `.mmd` (код 
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173/  (?example=fsp — демо ФСП)
+npm run dev          # http://localhost:5173/  (?example=demo — демо-проект)
 ```
 
 Сборка статического редактора — `npm run build`, результат в `dist/`.
@@ -222,7 +226,7 @@ push в `main` (один раз включите Settings → Pages → Source: 
 
 ```bash
 npm run build
-npm run render -- public/examples/fsp-link/project.json fsp.mp4 --width 1920 --height 1080
+npm run render -- public/examples/partner-link/project.json demo.mp4 --width 1920 --height 1080
 npm run render -- diagram.mmd diagram.webm      # голый Mermaid — нарезка автоматически
 npm run render:svg -- diagram.mmd diagram.svg   # статичная картинка
 ```
@@ -287,5 +291,5 @@ npm run test:e2e     # Playwright: код ↔ схема, рисование с�
   плеере — точно, по шрифту.
 
 Шрифты Inter и JetBrains Mono — SIL Open Font License 1.1 (`public/fonts/`).
-Демо-записи и сценарий взяты из репозитория
+Сценарий демо написан по мотивам модуля ФСП из
 [Evsikoff/itinder](https://github.com/Evsikoff/itinder).

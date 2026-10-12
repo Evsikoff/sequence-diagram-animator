@@ -91,7 +91,7 @@ test('перетаскивание участника меняет порядо�
 });
 
 test('анимация: показ, подсветка и кадр камеры в реплике', async ({ page }) => {
-    await open(page, '?example=fsp');
+    await open(page, '?example=demo');
     await page.getByRole('tab', { name: 'Анимация' }).click();
     // Вторая реплика первого эпизода.
     await page.locator('.replica-row').nth(1).click();
@@ -118,7 +118,7 @@ test('анимация: показ, подсветка и кадр камеры 
 });
 
 test('предпросмотр: плеер переключает эпизоды', async ({ page }) => {
-    await open(page, '?example=fsp');
+    await open(page, '?example=demo');
     await page.getByRole('button', { name: '▶ Смотреть' }).click();
     const player = page.locator('.preview-host .sda-player');
     await expect(player).toBeVisible();
